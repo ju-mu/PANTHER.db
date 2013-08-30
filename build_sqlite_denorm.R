@@ -1,6 +1,11 @@
+
 #### Functions to build the sqlite DB for Package PANTHER.db ####
 # Generated for PANTHER version 8.2
 # All source files from the ftp at ftp://ftp.pantherdb.org//
+
+library(RCurl)
+library("R.utils")
+library(RSQLite)
 
 #### SET THE TARGET FOLDER FOR ALL FILES FROM PANTHER USED FOR db BUILDING ####
 home_folder<-"~/Downloads/"
@@ -37,8 +42,6 @@ stopifnot(all(bioc_sql.orgs == names(panther_species)))
 
 
 ######## ftp download #################
-library(RCurl)
-library("R.utils")
 
 # Source Folders 
 src.hmm<-"ftp.pantherdb.org/hmm_classifications/8.1/"
@@ -334,7 +337,7 @@ CREATE TABLE map_metadata (
 ### ###
 
 #### Create the database file ####
-library(RSQLite)
+
 drv <- dbDriver("SQLite")
 
 file.remove("/media/EG_NAS/R/Panther/PANTHER.db.sqlite")
