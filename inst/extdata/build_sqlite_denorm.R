@@ -61,7 +61,7 @@ dir.class_rel<-file.path(home_folder,src.class_rel)
 #dir.ortho<-file.path(home_folder,src.ortho)
 
 #download files
-if(F){
+if(T){
   dir.create(paste(dir.hmm, sep=.Platform$file.sep),recursive=TRUE, mode="0755")
   dir.create(paste(dir.pathway, sep=.Platform$file.sep),recursive=TRUE, mode="0755")
   dir.create(paste(dir.seq, sep=.Platform$file.sep),recursive=TRUE, mode="0755")
