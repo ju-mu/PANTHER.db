@@ -1,0 +1,102 @@
+
+#### CREATE AND STORE SCHEMA ####
+schema.text <- '
+--
+-- PANTHER_DB schema
+-- ====================
+--
+CREATE TABLE panther_families (
+_id INTEGER PRIMARY KEY,-- 
+family_id VARCHAR(14) NOT NULL ,-- PANTHER ID
+family_term VARCHAR(255) NULL , -- description of family
+subfamily_term VARCHAR(255) NULL -- description of subfamily
+);
+
+CREATE INDEX panther_families_idx ON panther_families(_id);
+
+CREATE TABLE protein_class (
+_id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
+class_id VARCHAR(7) NOT NULL, -- PANTHER class ID
+class_term VARCHAR(50) NOT NULL --
+);
+
+CREATE INDEX protein_class_idx ON protein_class(_id);
+
+CREATE TABLE protein_class_tree (
+class_tree_id INTEGER PRIMARY KEY ,-- REFERENCES class ID
+class_id VARCHAR(7) NOT NULL, -- PANTHER class ID
+class_term VARCHAR(50) NOT NULL, --
+definition TEXT NOT NULL --
+);
+
+CREATE INDEX protein_class_tree_idx ON protein_class_tree(class_tree_id);
+
+CREATE TABLE protein_class_parents (
+class_tree_id INTEGER NOT NULL REFERENCES protein_class_tree (class_tree_id),-- REFERENCES class tree ID
+parent_class_id INTEGER NOT NULL REFERENCES protein_class_tree (class_tree_id) -- PANTHER class ID
+);
+
+CREATE INDEX lprotein_class_parents_idx ON protein_class_parents(class_tree_id,parent_class_id);
+CREATE INDEX rprotein_class_parents_idx ON protein_class_parents(parent_class_id,class_tree_id);
+
+CREATE TABLE protein_class_offspring (
+class_tree_id INTEGER NOT NULL REFERENCES protein_class_tree (class_tree_id),-- REFERENCES tree class ID
+offspring_class_id INTEGER NOT NULL REFERENCES protein_class_tree (class_tree_id) -- PANTHER class ID
+);
+
+CREATE INDEX lprotein_class_offspring_idx ON protein_class_offspring(class_tree_id,offspring_class_id);
+CREATE INDEX rprotein_class_offspring_idx ON protein_class_offspring(offspring_class_id,class_tree_id);
+
+CREATE TABLE go_slim (
+_id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
+goslim_id CHAR(10) NOT NULL ,
+ontology VARCHAR(9) NOT NULL
+);
+
+CREATE INDEX go_slim_idx ON go_slim(_id);
+
+CREATE TABLE panther_go (
+_id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
+go_id VARCHAR(6) NOT NULL ,
+go_term VARCHAR(255) NOT NULL
+);
+
+CREATE INDEX panther_go_idx ON panther_go(_id);
+
+CREATE TABLE uniprot (
+_id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
+uniprot_id VARCHAR(6) NOT NULL ,
+species VARCHAR(45) NOT NULL 
+);
+
+CREATE INDEX uniprot_idx ON uniprot(_id);
+
+CREATE TABLE panther_go_component (
+_id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
+component_go_id VARCHAR(6) NOT NULL ,
+component_term VARCHAR(255) NOT NULL ,
+evidence VARCHAR(255) NULL ,
+evidence_type VARCHAR(10) NULL ,
+confidence_code VARCHAR(3) NOT NULL
+);
+
+CREATE INDEX panther_go_component_idx ON panther_go_component(_id);
+
+-- Metadata tables.
+CREATE TABLE metadata (
+  name VARCHAR(80) PRIMARY KEY,
+  value VARCHAR(255)
+);
+CREATE TABLE map_counts (
+  map_name VARCHAR(80) PRIMARY KEY,
+  count INTEGER NOT NULL
+);
+CREATE TABLE map_metadata (
+  map_name VARCHAR(80) NOT NULL,
+  source_name VARCHAR(80) NOT NULL,
+  source_url VARCHAR(255) NOT NULL,
+  source_date VARCHAR(20) NOT NULL
+);
+
+'
+### ###
