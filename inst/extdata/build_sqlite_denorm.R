@@ -1,4 +1,3 @@
-
 #### Functions to build the sqlite DB for Package PANTHER.db ####
 # Generated for PANTHER version 8.2
 # All source files from the ftp at ftp://ftp.pantherdb.org//
@@ -9,6 +8,7 @@ library(RSQLite)
 
 #### SET THE TARGET FOLDER FOR ALL FILES FROM PANTHER USED FOR db BUILDING ####
 home_folder<-"~/Downloads/"
+source("scheme.txt")
 ### ###
 
 #### RESTRICT db TO SPECIES SUPPORTED BY AnnotationDb ####
