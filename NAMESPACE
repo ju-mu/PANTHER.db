@@ -1,0 +1,11 @@
+import(methods)
+import(AnnotationDbi)
+import(RSQLite)
+
+export(
+    PANTHER,
+    PANTHER_dbconn,
+    PANTHER_dbfile,
+    PANTHER_dbschema,
+    PANTHER_dbInfo
+)
