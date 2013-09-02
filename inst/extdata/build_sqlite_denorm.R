@@ -360,20 +360,20 @@ insert_df(db,"protein_class_parents",":class_tree_id,:parent_class_id",data_clas
 
 
 #### Prepare offspring protein_class_tree ####
-find_children<-function(node,parents,children){
-  child_vec<-children[grep(node,data_class_rel$class_id_parent,fixed=T)]
+find_offspring<-function(node,parents,offspring){
+  child_vec<-offspring[grep(node,data_class_rel$class_id_parent,fixed=T)]
   temp_vec<-c();
   for(child in child_vec){
     parent_vec<-parents[grep(child,parents,fixed=T)]
     if(!length(parent_vec)){
       next
     }else{
-      temp_vec<-c(temp_vec,find_children(child,parents,children))
+      temp_vec<-c(temp_vec,find_offspring(child,parents,offspring))
     }
   }
   c(child_vec,temp_vec)
 }
-olist<-lapply(unique(data_class_rel$class_id_parent),function(cid){unique(find_children(cid,data_class_rel$class_id_parent,data_class_rel$class_id_offspring))})
+olist<-lapply(unique(data_class_rel$class_id_parent),function(cid){unique(find_offspring(cid,data_class_rel$class_id_parent,data_class_rel$class_id_offspring))})
 
 names(olist)<-unique(data_class_rel$class_id_parent)
 data_class_rel_off<-stack(olist);nrow(data_class_rel_off)
