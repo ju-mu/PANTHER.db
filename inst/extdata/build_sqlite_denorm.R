@@ -236,8 +236,8 @@ panther_seq<-panther_seq[order(panther_seq$PantherIDSF),]
 
 drv <- dbDriver("SQLite")
 
-file.remove("/media/EG_NAS/R/Panther/PANTHER.db.sqlite")
-db <- dbConnect(drv, dbname="/media/EG_NAS/R/Panther/PANTHER.db.sqlite")
+file.remove(file.path(home_folder,"PANTHER.db.sqlite"))
+db <- dbConnect(drv, dbname=file.path(home_folder,"PANTHER.db.sqlite"))
 
 ## Create tables
 create.sql <- strsplit(schema.text, "\n")[[1]]
