@@ -1,4 +1,3 @@
-
 #### CREATE AND STORE SCHEMA ####
 schema.text <- '
 --
@@ -66,10 +65,18 @@ CREATE INDEX panther_go_idx ON panther_go(_id);
 CREATE TABLE uniprot (
 _id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
 uniprot_id VARCHAR(6) NOT NULL ,
-species VARCHAR(45) NOT NULL 
+species VARCHAR(45) NOT NULL -- bioconductor species abbreviation
 );
 
 CREATE INDEX uniprot_idx ON uniprot(_id);
+
+CREATE TABLE entrez (
+_id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
+entrez_id VARCHAR(6) NOT NULL 
+);
+
+CREATE INDEX entrez_idx ON entrez(_id);
+
 
 CREATE TABLE panther_go_component (
 _id INTEGER NOT NULL REFERENCES panther_families (_id),-- REFERENCES panther ID
@@ -97,6 +104,13 @@ CREATE TABLE map_metadata (
   source_url VARCHAR(255) NOT NULL,
   source_date VARCHAR(20) NOT NULL
 );
+
+CREATE TABLE species (
+  species VARCHAR(45) NOT NULL,-- bioconductor species abbreviation
+  species_uniprot VARCHAR(100) NOT NULL, -- uniprot full species name
+  taxid_uniprot INTEGER NOT NULL -- uniprot tax ID
+);
+
 
 '
 ### ###
