@@ -7,5 +7,7 @@ export(
     PANTHER_dbconn,
     PANTHER_dbfile,
     PANTHER_dbschema,
-    PANTHER_dbInfo
+    PANTHER_dbInfo,
+    availablePantherSpecies
 )
+
