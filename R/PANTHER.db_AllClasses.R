@@ -1,4 +1,3 @@
-
 .PANTHER<-setRefClass(
   "PANTHER", 
   contains="AnnotationDb",
@@ -13,7 +12,7 @@
       tfname<-"sfilt"
       tfile<-paste0(tfname,".sqlite")
       if(file.exists(tfile))file.remove(tfile)
-      if( tfname %in% dbGetQuery(.self$conn, "PRAGMA database_list")$name )dbGetQuery(.self$conn, "DETACH DATABASE sfilt")
+      if( tfname %in% dbGetQuery(.self$conn, "PRAGMA database_list")$name )dbGetQuery(.self$conn, paste("DETACH DATABASE",tfname))
       
       dbt <- dbConnect("SQLite", dbname=tfile);dbDisconnect(dbt)
       dbGetQuery(.self$conn, sprintf("ATTACH '%s' AS %s",tfile,tfname))
