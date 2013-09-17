@@ -1,6 +1,7 @@
 import(methods)
 import(AnnotationDbi)
 import(RSQLite)
+importFrom("utils",packageDescription)
 
 export(
     PANTHER,
@@ -8,6 +9,14 @@ export(
     PANTHER_dbfile,
     PANTHER_dbschema,
     PANTHER_dbInfo,
-    availablePantherSpecies
+    keytypes,
+    columns,
+    keys,
+    select,
+    availablePantherSpecies,
+    species,
+    "species<-",
+    resetSpecies,
+    traverseClassTree
 )
 
