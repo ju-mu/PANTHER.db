@@ -1,0 +1,174 @@
+%\VignetteIndexEntry{PANTHER.db: An annotation package to access PANTHER GO ontologies}
+%\VignetteDepends{PANTHER.db}
+
+\documentclass[11pt]{article}
+
+\usepackage{Sweave}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{graphics}
+\usepackage{latexsym, amsmath, amssymb}
+\usepackage{authblk}
+\usepackage[colorlinks=true, linkcolor=Blue, urlcolor=Blue,
+  citecolor=Blue]{hyperref}
+
+%% Simple macros
+
+\newcommand{\code}[1]{{\texttt{#1}}}
+\newcommand{\file}[1]{{\texttt{#1}}}
+
+\newcommand{\software}[1]{\textsl{#1}}
+\newcommand\R{\textsl{R}}
+\newcommand\Bioconductor{\textsl{Bioconductor}}
+\newcommand\Rpackage[1]{{\textsl{#1}\index{#1 (package)}}}
+\newcommand\Biocpkg[1]{%
+  {\href{http://bioconductor.org/packages/devel/bioc/html/#1.html}%
+    {\textsl{#1}}}%
+  \index{#1 (package)}}
+\newcommand\Rpkg[1]{%
+  {\href{http://cran.fhcrc.org/web/devel/#1/index.html}%
+    {\textsl{#1}}}%
+  \index{#1 (package)}}
+\newcommand\Biocdatapkg[1]{%
+  {\href{http://bioconductor.org/packages/devel/data/experiment/html/#1.html}%
+    {\textsl{#1}}}%
+  \index{#1 (package)}}
+\newcommand\Robject[1]{{\small\texttt{#1}}}
+\newcommand\Rclass[1]{{\textit{#1}\index{#1 (class)}}}
+\newcommand\Rfunction[1]{{{\small\texttt{#1}}\index{#1 (function)}}}
+\newcommand\Rmethod[1]{{\texttt{#1}}}
+\newcommand\Rfunarg[1]{{\small\texttt{#1}}}
+\newcommand\Rcode[1]{{\small\texttt{#1}}}
+
+%% Question, Exercise, Solution
+\usepackage{theorem}
+\theoremstyle{break}
+\newtheorem{Ext}{Exercise}
+\newtheorem{Question}{Question}
+
+
+\newenvironment{Exercise}{
+  \renewcommand{\labelenumi}{\alph{enumi}.}\begin{Ext}%
+}{\end{Ext}}
+\newenvironment{Solution}{%
+  \noindent\textbf{Solution:}\renewcommand{\labelenumi}{\alph{enumi}.}%
+}{\bigskip}
+
+
+
+
+\title{PANTHER.db: An annotation package to access PANTHER GO ontologies}
+\author{Julius Muller}
+
+\SweaveOpts{keep.source=TRUE}
+\begin{document}
+
+\maketitle
+
+\section{Configuring  \Robject{uniport.ws}}
+
+The \Rpackage{PANTHER.db} package provides a \Rmethod{select}
+interface to the compiled PANTHER ontology residing within a SQLite database.  
+
+<<loadPkg>>=
+library(PANTHER.db)
+@ 
+
+If you already know about the select interface, you can immediately
+learn about the various methods for this object by just looking at the
+help page.
+
+<<help,eval=FALSE>>=
+help("PANTHER.db")
+@ 
+
+
+When you load the \Rpackage{PANTHER.db} package, it creates a
+\Robject{PANTHER.db} object.  If you look at the object you will see
+some helpful information about it.
+
+<<show>>=
+PANTHER.db
+@ 
+
+By default, you can see that the \Robject{PANTHER.db} object is set to
+retrieve records from various species. The choice of the species is the 
+intersection of species supported by PANTHER and the core annotation packages
+in bioconductor. Methods are provided to restrict all queries to a 
+specific kind of species. In order to change it, you first need to look up the
+appropriate species identifier for the species that you are interested in.
+The PANTHER gene ontology is based on the Uniprot reference proteome set.
+In order to display the choices, we have provided the helper function 
+\Rfunction{availablePantherSpecies} which will list all the supported
+species along with their Uniprot species name and taxonomy ids:
+
+<<availSpecies>>=
+availablePantherSpecies(PANTHER.db)
+@ 
+
+Once you have learned the PANTHER species name for the species of interest, you
+can then change the species for the \Robject{PANTHER.db} object:
+
+<<setTaxID>>=
+species(PANTHER.db) <- "HUMAN"
+PANTHER.db
+resetSpecies(PANTHER.db)
+PANTHER.db
+@ 
+
+As you can see the species is now restricted to Homo sapiens.
+To display all data which can be returned from a select query,
+the columns method can be used:
+
+<<columns>>=
+columns(PANTHER.db)
+@ 
+
+Some of these fields can also be used as keytypes:
+
+<<keytypes>>=
+keytypes(PANTHER.db)
+@ 
+
+It is also possible to display all possible keys of a table for 
+any keytype (defaults to FAMILY_ID)
+
+<<keys,eval=FALSE>>=
+go_ids<-head(keys(PANTHER.db,keytype="GOSLIM_ID"))
+go_ids
+@ 
+
+Finally, you can loop up whatever combinations of columns, keytypes and keys
+that you need when using \Rmethod{select}.
+
+<<select,eval=FALSE>>=
+mkeys <- go_ids
+cols <- c("FAMILY_ID","CLASS_ID")
+kt <- "GOSLIM_ID"
+res <- select(PANTHER.db, mkeys, cols, kt)
+head(res)
+@ 
+
+To access the PANTHER Protein Class ontology tree structure, the
+method \Rfunction{traverseClassTree} can be used:
+
+<<traverseClassTree>>=
+term<-"PC00209"
+select(PANTHER.db,term, "CLASS_TERM","CLASS_ID")
+
+ancestors<-traverseClassTree(PANTHER.db,term,scope="ANCESTOR")
+select(PANTHER.db,ancestors, "CLASS_TERM","CLASS_ID")
+
+parents<-traverseClassTree(PANTHER.db,term,scope="PARENT")
+select(PANTHER.db,parents, "CLASS_TERM","CLASS_ID")
+
+children<-traverseClassTree(PANTHER.db,term,scope="CHILD")
+select(PANTHER.db,children, "CLASS_TERM","CLASS_ID")
+
+offspring<-traverseClassTree(PANTHER.db,term,scope="OFFSPRING")
+select(PANTHER.db,offspring, "CLASS_TERM","CLASS_ID")
+@ 
+
+\end{document}
+
+
+
