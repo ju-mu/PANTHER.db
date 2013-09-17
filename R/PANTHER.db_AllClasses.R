@@ -1,9 +1,10 @@
+
 .PANTHER<-setRefClass(
-  "PANTHER", 
+  "PANTHER.db", 
   contains="AnnotationDb",
   fields=list(.ref_table="character", .user_filter="logical",.species="character",.allSpecies="character"),
   methods=list(
-    setSpecies=function(nspec){
+    .setSpecies=function(nspec){
       if(!nspec %in% unlist(strsplit(.allSpecies,"|",fixed=T)))stop(paste0("Species must be one of the following:\n",.allSpecies))
       if(.allSpecies==nspec)return()
       .species<<-nspec
