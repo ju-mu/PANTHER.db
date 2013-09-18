@@ -1,4 +1,4 @@
-%\VignetteIndexEntry{PANTHER.db: An annotation package to access PANTHER GO ontologies}
+%\VignetteIndexEntry{PANTHER.db: An annotation package to access the PANTHER Classification System}
 %\VignetteDepends{PANTHER.db}
 
 \documentclass[11pt]{article}
@@ -53,18 +53,24 @@
   \noindent\textbf{Solution:}\renewcommand{\labelenumi}{\alph{enumi}.}%
 }{\bigskip}
 
+\textwidth=6.5in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=-.1in
+\evensidemargin=-.1in
+\headheight=-.3in
 
 
-
-\title{PANTHER.db: An annotation package to access PANTHER GO ontologies}
-\author{Julius Muller}
+\title{PANTHER.db: An annotation package to access the PANTHER Classification System}
+\author{Julius M\"uller}
 
 \SweaveOpts{keep.source=TRUE}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
-\section{Configuring  \Robject{uniport.ws}}
+\section{Introduction to \Rpackage{PANTHER.db}}
 
 The \Rpackage{PANTHER.db} package provides a \Rmethod{select}
 interface to the compiled PANTHER ontology residing within a SQLite database.  
@@ -130,9 +136,9 @@ keytypes(PANTHER.db)
 @ 
 
 It is also possible to display all possible keys of a table for 
-any keytype (defaults to FAMILY_ID)
+any keytype. If keytype is unspecified, the FAMILY\_ID will be returned.
 
-<<keys,eval=FALSE>>=
+<<keys>>=
 go_ids<-head(keys(PANTHER.db,keytype="GOSLIM_ID"))
 go_ids
 @ 
@@ -140,11 +146,9 @@ go_ids
 Finally, you can loop up whatever combinations of columns, keytypes and keys
 that you need when using \Rmethod{select}.
 
-<<select,eval=FALSE>>=
-mkeys <- go_ids
+<<select>>=
 cols <- c("FAMILY_ID","CLASS_ID")
-kt <- "GOSLIM_ID"
-res <- select(PANTHER.db, mkeys, cols, kt)
+res <- select(PANTHER.db, keys=go_ids, columns=cols,keytype="GOSLIM_ID")
 head(res)
 @ 
 
