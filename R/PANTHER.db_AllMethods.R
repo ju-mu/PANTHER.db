@@ -106,9 +106,10 @@ setMethod("keys", "PANTHER.db",function(x, keytype){ if (missing(keytype)) keyty
   if(length(keytype)>1)stop("keytype can not be more than one")
   if(any(!columns %in% columns(x)))stop(paste0("column must be one of the following:\n",paste(columns(x),collapse="|")))
   if(!keytype %in% keytypes(x))stop(paste0("keytype must be one of the following:\n",paste(keytypes(x),collapse="|")))
-  
+  columns<-unique(columns)
   mcols<-if(keytype %in% names(t2c[columns]))t2c[columns] else c(t2c[keytype],t2c[columns])
   mtabs<-if(keytype %in% names(t2c[columns]))unique(t2t[columns][!t2t[columns]==x$.ref_table]) else unique(c(t2t[keytype],t2t[columns][!t2t[columns]==x$.ref_table]))
+  mtabs<-mtabs[!mtabs == "panther_families"]
   
   join_clause<-if(!length(mtabs)) "" else paste("NATURAL JOIN",paste(mtabs,collapse=" NATURAL JOIN "))
   mkeys<-paste0("'",paste(keys,collapse="','"),"'")
@@ -118,7 +119,6 @@ setMethod("keys", "PANTHER.db",function(x, keytype){ if (missing(keytype)) keyty
   colnames(res)<-names(mcols)
   res
 }
-
 setMethod("select", "PANTHER.db",function(x, keys, columns, keytype){ if (missing(keytype)) keytype <- "FAMILY_ID";.select(x, keys, columns, keytype)})
 
 
