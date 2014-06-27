@@ -2,37 +2,44 @@
 .PANTHER<-setRefClass(
   "PANTHER.db", 
   contains="AnnotationDb",
-  fields=list(.ref_table="character", .user_filter="logical",.species="character",.allSpecies="character"),
+  fields=list(.ref_table="character",.core_tabs="character",.user_filter="logical",.species="character",.allSpecies="character"),
   methods=list(
     .setSpecies=function(nspec){
       if(!nspec %in% unlist(strsplit(.allSpecies,"|",fixed=T)))stop(paste0("Species must be one of the following:\n",.allSpecies))
       if(.allSpecies==nspec)return()
       .species<<-nspec
+      alltabs<-dbListTables(.self$conn)
+      exisiting_filt<-grep("_filt$",alltabs,v=T)
+      
+      if(length(exisiting_filt)){
+        for(ftab in exisiting_filt)sqliteQuickSQL(.self$conn, sprintf("DROP TABLE %s",ftab))
+        .core_tabs<<-gsub("_filt","",.core_tabs)
+      }
+      .ref_table<<-"panther_families_filt"
+      .core_tabs<<-paste0(.core_tabs,"_filt")
+      
+      sqliteQuickSQL(.self$conn, sprintf("CREATE TABLE uniprot_filt AS SELECT * FROM uniprot WHERE species='%s'",.species))
+      sqliteQuickSQL(.self$conn, sprintf("CREATE TABLE entrez_filt AS SELECT * FROM entrez WHERE species='%s'",.species))
+      sqliteQuickSQL(.self$conn, sprintf("CREATE TABLE %s AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot_filt",.ref_table))
+      alltabs<-dbListTables(.self$conn)
+      
+      for(mtab in setdiff(.core_tabs,c(.ref_table,"uniprot_filt","entrez_filt")))sqliteQuickSQL(.self$conn, sprintf("CREATE TABLE %s AS SELECT * FROM %s WHERE _id in (SELECT _id from %s)",mtab,sub("_filt$","",mtab),.ref_table))
+      
       .user_filter<<-T
       
-      tfname<-"sfilt"
-      tfile<-paste0(tfname,".sqlite")
-      if(file.exists(tfile))file.remove(tfile)
-      if( tfname %in% dbGetQuery(.self$conn, "PRAGMA database_list")$name )dbGetQuery(.self$conn, paste("DETACH DATABASE",tfname))
-      
-      dbt <- dbConnect("SQLite", dbname=tfile);dbDisconnect(dbt)
-      dbGetQuery(.self$conn, sprintf("ATTACH '%s' AS %s",tfile,tfname))
-      sql <- sprintf("CREATE TABLE %s.panther_families_filtered AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot WHERE species='%s'",tfname,.species)
-      sqliteQuickSQL(.self$conn, sql)
-      
-      .ref_table<<-paste0(tfname,".panther_families_filtered")
     },
     .resetSpecies=function(){
       .species<<-.allSpecies
       .user_filter<<-F
       .ref_table<<-"panther_families"
+      .core_tabs<<-c("uniprot","entrez","go_slim","panther_go","panther_go_component","protein_class")
     },
-    .setAvailableSpecies=function(){
-      sql <- paste("SELECT DISTINCT(species) from uniprot")
-      res <- dbGetQuery(AnnotationDbi:::dbConn(.self), sql)
+    .initializePANTHERdb=function(){
+      res<-sqliteQuickSQL(.self$conn, "SELECT DISTINCT(species) from uniprot")
       .allSpecies<<-paste(sort(res[,1]),collapse="|")
       .resetSpecies()
-      .ref_table<<-"panther_families"
     }
   )  
 )
+
+
