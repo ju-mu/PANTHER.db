@@ -4,7 +4,7 @@
 } 
 setMethod("species", "PANTHER.db", .species)
 
-#emulate S4 hehavior
+#emulate S4 behavior
 setReplaceMethod("species", "PANTHER.db",
   function(x, value) {
     x$.setSpecies(value)
@@ -55,7 +55,8 @@ setMethod("columns", "PANTHER.db", .cols)
 setMethod("traverseClassTree", signature(x="PANTHER.db",query="character",scope="character"),.traverseClassTree)
 
 type2table <- function(x){
-  cls<-c(x$.ref_table,"go_slim","go_slim","uniprot","uniprot",x$.ref_table,x$.ref_table,"protein_class","protein_class","panther_go","panther_go",rep("panther_go_component",5),"entrez")
+  cls<-c("panther_families","go_slim","go_slim","uniprot","uniprot","panther_families","panther_families","protein_class","protein_class","panther_go","panther_go",rep("panther_go_component",5),"entrez")
+  if(x$.user_filter)cls<-paste0(cls,"_filt")
   names(cls)<-columns(x)
   cls
 } 
@@ -71,7 +72,7 @@ setMethod("availablePantherSpecies", "PANTHER.db", .availablePantherSpecies)
 
 
 type2col <- function(x){
-  cls<-c("family_id","goslim_id","ontology","uniprot_id","species","family_term","subfamily_term","class_id","class_term","go_id","go_term","component_go_id","component_go_term","evidence","evidence_type","confidence_code","entrez_id")
+  cls<-c("family_id","goslim_id","ontology","uniprot_id","species","family_term","subfamily_term","class_id","class_term","go_id","go_term","component_go_id","component_term","evidence","evidence_type","confidence_code","entrez_id")
   names(cls)<-columns(x)
   cls
 } 
@@ -109,9 +110,9 @@ setMethod("keys", "PANTHER.db",function(x, keytype){ if (missing(keytype)) keyty
   columns<-unique(columns)
   mcols<-if(keytype %in% names(t2c[columns]))t2c[columns] else c(t2c[keytype],t2c[columns])
   mtabs<-if(keytype %in% names(t2c[columns]))unique(t2t[columns][!t2t[columns]==x$.ref_table]) else unique(c(t2t[keytype],t2t[columns][!t2t[columns]==x$.ref_table]))
-  mtabs<-mtabs[!mtabs == "panther_families"]
+  mtabs<-mtabs[!mtabs == x$.ref_table]
   
-  join_clause<-if(!length(mtabs)) "" else paste("NATURAL JOIN",paste(mtabs,collapse=" NATURAL JOIN "))
+  join_clause<-if(!length(mtabs)) "" else paste("NATURAL LEFT OUTER JOIN",paste(mtabs,collapse=" NATURAL LEFT OUTER JOIN "))
   mkeys<-paste0("'",paste(keys,collapse="','"),"'")
   
   res<-dbGetQuery(x$conn, sprintf("SELECT %s FROM %s %s WHERE %s IN (%s) ORDER BY %s",paste(mcols,collapse=","),x$.ref_table,join_clause,t2c[keytype],mkeys,t2c[keytype]))
@@ -120,7 +121,5 @@ setMethod("keys", "PANTHER.db",function(x, keytype){ if (missing(keytype)) keyty
   res
 }
 setMethod("select", "PANTHER.db",function(x, keys, columns, keytype){ if (missing(keytype)) keytype <- "FAMILY_ID";.select(x, keys, columns, keytype)})
-
-
 
 
