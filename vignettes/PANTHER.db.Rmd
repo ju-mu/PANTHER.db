@@ -1,0 +1,148 @@
+---
+title: "PANTHER.db vignette"
+subtitle: "PANTHER.db: An annotation package to access the PANTHER Classification System"
+author: "Julius Muller"
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: false
+package: PANTHER.db
+vignette: >
+  %\VignetteIndexEntry{PANTHER.db: An annotation package to access the PANTHER Classification System}
+  %\VignetteDepends{AnnotationDbi, AnnotationHub}
+  %\VignetteKeywords{annotation, database}
+  %\VignettePackage{PANTHER.db}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction to `PANTHER.db` {-}
+
+The `r Biocpkg("PANTHER.db")` package provides a `select` interface to the compiled PANTHER ontology residing within a SQLite database.
+
+`PANTHER.db` can be installed from Bioconductor using
+```{r, eval = FALSE}
+if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+BiocManager::install("PANTHER.db")
+```
+
+The size of the underlying SQLite database is currently about 500MB and has to be pre downloaded using AnnotationHub as follows
+
+```{r, eval = FALSE}
+if (!requireNamespace("AnnotationHub")) BiocManager::install("AnnotationHub")
+library(AnnotationHub)
+ah <- AnnotationHub()
+query(ah, "PANTHER.db")[[1]]
+```
+
+Finally `PANTHER.db` can be loaded with
+
+```{r, eval = TRUE, message=FALSE, warning=FALSE}
+library(PANTHER.db)
+```
+
+If you already know about the select interface, you can immediately
+learn about the various methods for this object by just looking at the
+help page.
+
+```{r, eval = FALSE}
+help("PANTHER.db")
+```
+
+When you load the `PANTHER.db` package, it creates a `PANTHER.db` object.  If you look at the object you will see
+some helpful information about it.
+
+```{r, eval = TRUE}
+PANTHER.db
+```
+
+By default, you can see that the `PANTHER.db` object is set to
+retrieve records from the various organisms supported by http://pantherdb.org.
+Methods are provided to restrict all queries to a specific organism.
+In order to change it, you first need to look up the appropriate organism
+identifier for the organism that you are interested in.
+The PANTHER gene ontology is based on the Uniprot reference proteome set.
+In order to display the choices, we have provided the helper function
+`availablePthOrganisms` which will list all the supported
+organisms along with their Uniprot organism name and taxonomy ids:
+
+```{r, eval = TRUE}
+availablePthOrganisms(PANTHER.db)[1:5,]
+```
+
+Once you have learned the PANTHER organism name for the organism of interest, you
+can then change the organism for the `PANTHER.db` object:
+
+```{r, eval = TRUE}
+pthOrganisms(PANTHER.db) <- "HUMAN"
+PANTHER.db
+resetPthOrganisms(PANTHER.db)
+PANTHER.db
+```
+
+As you can see, organisms are now restricted to Homo sapiens.
+To display all data which can be returned from a select query,
+the columns method can be used:
+
+```{r, eval = TRUE}
+columns(PANTHER.db)
+```
+
+Some of these fields can also be used as keytypes:
+
+```{r, eval = TRUE}
+keytypes(PANTHER.db)
+```
+
+It is also possible to display all possible keys of a table for
+any keytype. If keytype is unspecified, the `FAMILY_ID` will be returned.
+
+```{r, eval = TRUE}
+go_ids <- head(keys(PANTHER.db,keytype="GOSLIM_ID"))
+go_ids
+```
+
+Finally, you can loop up whatever combinations of columns, keytypes and keys
+that you need when using `select` or `mapIds`.
+
+```{r, eval = TRUE}
+cols <- "CLASS_ID"
+res <- mapIds(PANTHER.db, keys=go_ids, column=cols, keytype="GOSLIM_ID", multiVals="list")
+lengths(res)
+res_inner <- select(PANTHER.db, keys=go_ids, columns=cols, keytype="GOSLIM_ID")
+nrow(res_inner)
+tail(res_inner)
+```
+
+By default, all tables will be joined using the central table with PANTHER family IDs by an inner join. Therefore all rows without an associated PANTHER family ID will be removed from the output. To include all results with an associated PANTHER family ID, the argument `jointype` of the `select` function must be set to `left`.
+
+```{r, eval = TRUE}
+res_left <- select(PANTHER.db, keys=go_ids, columns=cols,keytype="GOSLIM_ID", jointype="left")
+nrow(res_left)
+tail(res_left)
+```
+
+To access the PANTHER Protein Class ontology tree structure, the
+method `traverseClassTree` can be used:
+
+```{r, eval = TRUE}
+term <- "PC00209"
+select(PANTHER.db,term, "CLASS_TERM","CLASS_ID")
+
+ancestors <- traverseClassTree(PANTHER.db,term,scope="ANCESTOR")
+select(PANTHER.db,ancestors, "CLASS_TERM","CLASS_ID")
+
+parents <- traverseClassTree(PANTHER.db,term,scope="PARENT")
+select(PANTHER.db,parents, "CLASS_TERM","CLASS_ID")
+
+children <- traverseClassTree(PANTHER.db,term,scope="CHILD")
+select(PANTHER.db,children, "CLASS_TERM","CLASS_ID")
+
+offspring <- traverseClassTree(PANTHER.db,term,scope="OFFSPRING")
+select(PANTHER.db,offspring, "CLASS_TERM","CLASS_ID")
+```
+
+# SessionInfo {-}
+```{r}
+sessionInfo()
+```

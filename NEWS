@@ -1,0 +1,50 @@
+Changes in version 1.0.5:
+
+USER VISIBLE CHANGES
+
+    o   db updated to PANTHER release v14.1 including new species
+    o   sqlite database moved to AnnotationHub
+    o   entrez db updated based on uniprot to entrez id mappings to include the latest entrez id to panther family id mappings
+    o   to limit the output, select queries now return only INNER joins hence dropping results with no FAMILY_ID association
+    o   left join can be enforced using argument jointype="left" in select query
+
+
+Changes in version 1.0.4:
+
+NO USER VISIBLE CHANGES
+
+    o   db updated to PANTHER release v12.0
+    o   added all species available on http://pantherdb.org
+
+
+Changes in version 1.0.3:
+
+NO USER VISIBLE CHANGES
+
+
+Changes in version 1.0.2:
+
+USER VISIBLE CHANGES
+
+    o   db updated to PANTHER release v10.0
+    o   rename of organism related methods: species(), availableSpecies() and resetSpecies() are now called pthOrganisms(), availablePthOrganisms() and resetPthOrganisms(). Functionality is unchanged.
+
+
+Changes in version 1.0.1:
+
+USER VISIBLE CHANGES
+
+    o   PANTHER.db is now using RSQLite v1.0 compliant code
+
+
+Changes in version 1.0.0:
+
+USER VISIBLE CHANGES
+
+    o   db updated to PANTHER release v9.0
+    o   fixed a bug preventing COMPONENT_TERM queries
+    o   fixed a file permission bug
+    o   select queries will now return outer joins instead of inner joints i.e. incomplete results are allowed
+    o   species pre selection will strictly limit information from joined tables to information related to the selected species.
+
+

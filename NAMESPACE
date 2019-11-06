@@ -1,0 +1,16 @@
+import(methods)
+import(RSQLite)
+import(AnnotationDbi)
+import(AnnotationHub)
+importFrom("utils",packageDescription)
+importFrom("utils", packageVersion)
+
+export(
+    availablePthOrganisms,
+    pthOrganisms,
+    "pthOrganisms<-",
+    resetPthOrganisms,
+    traverseClassTree
+)
+
+exportMethods(select, keytypes, columns, keys)
