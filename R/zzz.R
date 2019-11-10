@@ -1,21 +1,18 @@
-
-
-.onLoad <- function(libname, pkgname){
-
-  dbfile <- suppressMessages(AnnotationHub()[["AH75194", verbose=FALSE]])
-
-  db <- new(
-    getClassDef(Class = pkgname, where = getNamespace(name = pkgname)),
+make_PANTHER.db <- function() {
+    ah <- suppressMessages(AnnotationHub())
+    dbfile <- ah[["AH75194", verbose=FALSE]]
     conn = dbConnect(
       SQLite(), dbfile, cache_size = 64000, synchronous = "off"
     )
-  )
+    db <- new("PANTHER.db", conn=conn)
+    db$.initializePANTHERdb()
+    db
+}
 
-  ns <- asNamespace(pkgname)
-  assign(pkgname, db, envir=ns)
-  namespaceExport(ns, pkgname)
-
-  db$.initializePANTHERdb()
+.onLoad <- function(libname, pkgname) {
+    ns <- asNamespace(pkgname)
+    makeCachedActiveBinding("PANTHER.db", make_PANTHER.db, env=ns)
+    namespaceExport(ns, "PANTHER.db")
 }
 
 .onAttach <- function(libname, pkgname) {
@@ -25,4 +22,3 @@
 .onUnload <- function(libpath) {
   PANTHER.db$finalize()
 }
-

@@ -4,6 +4,7 @@ import(AnnotationDbi)
 import(AnnotationHub)
 importFrom("utils",packageDescription)
 importFrom("utils", packageVersion)
+importFrom(BiocFileCache, makeCachedActiveBinding)
 
 export(
     availablePthOrganisms,
