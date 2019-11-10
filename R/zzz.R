@@ -1,9 +1,7 @@
 make_PANTHER.db <- function() {
     ah <- suppressMessages(AnnotationHub())
     dbfile <- ah[["AH75194", verbose=FALSE]]
-    conn = dbConnect(
-      SQLite(), dbfile, cache_size = 64000, synchronous = "off"
-    )
+    conn <- AnnotationDbi::dbFileConnect( dbfile )
     db <- new("PANTHER.db", conn=conn)
     db$.initializePANTHERdb()
     db
