@@ -29,7 +29,6 @@
       dbExecute(.self$conn, sprintf("CREATE TEMP VIEW uniprot_filtv AS SELECT * FROM uniprot WHERE species='%s'",.pthOrganisms))
       dbExecute(.self$conn, sprintf("CREATE TEMP VIEW entrez_filtv AS SELECT * FROM entrez WHERE species='%s'",.pthOrganisms))
       dbExecute(.self$conn, sprintf("CREATE TEMP VIEW %s AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot_filtv",.ref_table))
-      alltabs <- dbListTables(.self$conn)
 
       for(mtab in setdiff(.core_tabs,c(.ref_table,"uniprot_filtv","entrez_filtv")))dbExecute(.self$conn, sprintf("CREATE TEMP VIEW %s AS SELECT * FROM %s WHERE _id in (SELECT _id from %s)",mtab,sub("_filtv$","",mtab),.ref_table))
 

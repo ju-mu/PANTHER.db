@@ -53,7 +53,7 @@ setMethod("traverseClassTree", signature(x="PANTHER.db",query="character",scope=
 
 type2table <- function(x){
   table_names <- c("panther_families","go_slim","go_slim","uniprot","uniprot","panther_families","panther_families","protein_class","protein_class","panther_go","panther_go",rep("panther_go_component",5),"entrez")
-  if(x$.user_filter)table_names <- paste0(table_names,"_filt")
+  if(x$.user_filter)table_names <- paste0(table_names,"_filtv")
   names(table_names) <- .cols(x)
   table_names
 }
