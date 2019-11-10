@@ -11,7 +11,7 @@
 
       fvws <- dbGetQuery(conn, "SELECT name from sqlite_temp_master WHERE type='view' and name like '%_filtv'")[,1]
       if(length(fvws)){
-        for(ftab in fvws)dbExecute(.self$conn, sprintf("DROP VIEW %s",ftab))
+        for(ftab in fvws)dbExecute(.self$conn, sprintf("DROP TABLE %s",ftab))
         .core_tabs <<- gsub("_filtv","",.core_tabs)
       }
 
@@ -26,11 +26,11 @@
       .ref_table <<- "panther_families_filtv"
       .core_tabs <<- paste0(.core_tabs,"_filtv")
 
-      dbExecute(.self$conn, sprintf("CREATE TEMP VIEW uniprot_filtv AS SELECT * FROM uniprot WHERE species='%s'",.pthOrganisms))
-      dbExecute(.self$conn, sprintf("CREATE TEMP VIEW entrez_filtv AS SELECT * FROM entrez WHERE species='%s'",.pthOrganisms))
-      dbExecute(.self$conn, sprintf("CREATE TEMP VIEW %s AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot_filtv",.ref_table))
+      dbExecute(.self$conn, sprintf("CREATE TEMP TABLE uniprot_filtv AS SELECT * FROM uniprot WHERE species='%s'",.pthOrganisms))
+      dbExecute(.self$conn, sprintf("CREATE TEMP TABLE entrez_filtv AS SELECT * FROM entrez WHERE species='%s'",.pthOrganisms))
+      dbExecute(.self$conn, sprintf("CREATE TEMP TABLE %s AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot_filtv",.ref_table))
 
-      for(mtab in setdiff(.core_tabs,c(.ref_table,"uniprot_filtv","entrez_filtv")))dbExecute(.self$conn, sprintf("CREATE TEMP VIEW %s AS SELECT * FROM %s WHERE _id in (SELECT _id from %s)",mtab,sub("_filtv$","",mtab),.ref_table))
+      for(mtab in setdiff(.core_tabs,c(.ref_table,"uniprot_filtv","entrez_filtv")))dbExecute(.self$conn, sprintf("CREATE TEMP TABLE %s AS SELECT * FROM %s WHERE _id in (SELECT _id from %s)",mtab,sub("_filtv$","",mtab),.ref_table))
 
       .user_filter <<- T
 
