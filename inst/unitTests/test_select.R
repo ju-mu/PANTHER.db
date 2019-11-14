@@ -186,5 +186,16 @@ test_switch_species <- function(){
   RUnit::checkEquals("HUMAN",pthOrganisms(PANTHER.db))
   PANTHER.db::resetPthOrganisms(PANTHER.db)
   RUnit::checkEquals(all_specs,pthOrganisms(PANTHER.db))
+  up_out <- sort(c("P12996", "O67104", "Q818X3", "P53557", "Q9AMS7", "A5I427", 
+"Q83CU5", "Q8REU0", "Q74CT7", "Q7NDA8", "P44987", "O25956", "Q8F498", 
+"Q58195", "Q58014", "Q58692", "P9WPQ7", "Q9JRW7", "A8DW51", "A9A5K6", 
+"Q9I618", "Q7UF84", "P12678", "Q8EDK6", "Q2FVJ7", "Q9FCC3", "P73538", 
+"B5YK85", "Q9KSZ4", "Q8PDF0", "Q7CH65"))
+  up_all <- sort(select(PANTHER.db,keys="PTHR22976:SF1",keytype="FAMILY_ID",columns="UNIPROT")$UNIPROT)
+  RUnit::checkEquals(up_out, up_all)
+  PANTHER.db::pthOrganisms(PANTHER.db) <- "SYNY3"
+  up_out_syny3 <- "P73538"
+  up_all_syny3 <- sort(select(PANTHER.db,keys="PTHR22976:SF1",keytype="FAMILY_ID",columns="UNIPROT")$UNIPROT)
+  RUnit::checkEquals(up_out_syny3, up_all_syny3)
 }
 
