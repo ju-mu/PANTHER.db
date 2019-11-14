@@ -9,7 +9,7 @@
       if(.allPthOrganisms==nspec)return()
       .pthOrganisms <<- nspec
 
-      fvws <- dbGetQuery(conn, "SELECT name from sqlite_temp_master WHERE type='view' and name like '%_filtv'")[,1]
+      fvws <- dbGetQuery(conn, "SELECT name from sqlite_temp_master WHERE type='table' and name like '%_filtv'")[,1]
       if(length(fvws)){
         for(ftab in fvws)dbExecute(.self$conn, sprintf("DROP TABLE %s",ftab))
         .core_tabs <<- gsub("_filtv","",.core_tabs)
