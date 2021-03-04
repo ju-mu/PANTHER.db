@@ -12,18 +12,18 @@
       exisiting_filt <- grep("_filt$",alltabs,v=T)
 
       if(length(exisiting_filt)){
-        for(ftab in exisiting_filt)dbExecute(.self$conn, sprintf("DROP TABLE %s",ftab))
+        for(ftab in exisiting_filt)dbExecute(.self$conn, sprintf("DROP VIEW %s",ftab))
         .core_tabs <<- gsub("_filt","",.core_tabs)
       }
       .ref_table <<- "panther_families_filt"
       .core_tabs <<- paste0(.core_tabs,"_filt")
 
-      dbExecute(.self$conn, sprintf("CREATE TABLE uniprot_filt AS SELECT * FROM uniprot WHERE species='%s'",.pthOrganisms))
-      dbExecute(.self$conn, sprintf("CREATE TABLE entrez_filt AS SELECT * FROM entrez WHERE species='%s'",.pthOrganisms))
-      dbExecute(.self$conn, sprintf("CREATE TABLE %s AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot_filt",.ref_table))
+      dbExecute(.self$conn, sprintf("CREATE TEMP VIEW uniprot_filt AS SELECT * FROM uniprot WHERE species='%s'",.pthOrganisms))
+      dbExecute(.self$conn, sprintf("CREATE TEMP VIEW entrez_filt AS SELECT * FROM entrez WHERE species='%s'",.pthOrganisms))
+      dbExecute(.self$conn, sprintf("CREATE TEMP VIEW %s AS SELECT _id,family_id,family_term,subfamily_term FROM panther_families NATURAL JOIN uniprot_filt",.ref_table))
       alltabs <- dbListTables(.self$conn)
 
-      for(mtab in setdiff(.core_tabs,c(.ref_table,"uniprot_filt","entrez_filt")))dbExecute(.self$conn, sprintf("CREATE TABLE %s AS SELECT * FROM %s WHERE _id in (SELECT _id from %s)",mtab,sub("_filt$","",mtab),.ref_table))
+      for(mtab in setdiff(.core_tabs,c(.ref_table,"uniprot_filt","entrez_filt")))dbExecute(.self$conn, sprintf("CREATE TEMP VIEW %s AS SELECT * FROM %s WHERE _id in (SELECT _id from %s)",mtab,sub("_filt$","",mtab),.ref_table))
 
       .user_filter <<- T
 
